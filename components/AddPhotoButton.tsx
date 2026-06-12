@@ -4,15 +4,17 @@ import { useRef, useState } from "react";
 import { resizeBoth } from "@/lib/resize-image";
 import { addPhotoKey } from "@/app/actions/folders";
 
+type UploadState = "idle" | "uploading" | "done";
+
 export default function AddPhotoButton({ folderId }: { folderId: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
+  const [state, setState] = useState<UploadState>("idle");
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploading(true);
+    setState("uploading");
 
     const res = await fetch("/api/upload-url", { method: "POST" });
     const { uuid, fullUrl, thumbUrl } = await res.json();
@@ -33,10 +35,18 @@ export default function AddPhotoButton({ folderId }: { folderId: string }) {
     ]);
 
     await addPhotoKey(folderId, uuid);
+    setState("done");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    setUploading(false);
+    setState("idle");
     inputRef.current!.value = "";
   }
+
+  const bgColor = {
+    idle: "bg-blue-600",
+    uploading: "bg-purple-600",
+    done: "bg-green-500",
+  }[state];
 
   return (
     <>
@@ -50,11 +60,45 @@ export default function AddPhotoButton({ folderId }: { folderId: string }) {
       />
       <button
         onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        className="w-14 h-14 rounded-full bg-blue-600 text-white text-2xl shadow-lg flex items-center justify-center disabled:opacity-50"
+        disabled={state !== "idle"}
+        className={`w-14 h-14 rounded-full text-white text-2xl shadow-lg flex items-center justify-center cursor-pointer ${bgColor}`}
         aria-label="Add photo"
       >
-        {uploading ? "…" : "+"}
+        {state === "uploading" && (
+          <svg className="animate-spin h-6 w-6" viewBox="0 0 24 24" fill="none">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+            />
+          </svg>
+        )}
+
+        {state === "done" && (
+          <svg
+            className="h-6 w-6"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        )}
+
+        {state === "idle" && "+"}
       </button>
     </>
   );

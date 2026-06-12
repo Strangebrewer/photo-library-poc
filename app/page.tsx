@@ -26,7 +26,7 @@ export default async function Home() {
                 className="flex items-center justify-between py-4 text-base font-medium"
               >
                 <span>{folder.name}</span>
-                <span className="text-gray-400">›</span>
+                <span className="text-gray-400">&gt;</span>
               </Link>
             </li>
           ))}
