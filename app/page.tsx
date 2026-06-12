@@ -1,9 +1,11 @@
-import Link from 'next/link'
-import { prisma } from '@/lib/prisma'
-import CreateFolderForm from '@/components/CreateFolderForm'
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import CreateFolderForm from "@/components/CreateFolderForm";
 
 export default async function Home() {
-  const folders = await prisma.folder.findMany({ orderBy: { createdAt: 'desc' } })
+  const folders = await prisma.folder.findMany({
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <main className="max-w-lg mx-auto px-4 py-8">
@@ -12,7 +14,9 @@ export default async function Home() {
       </header>
 
       {folders.length === 0 ? (
-        <p className="text-gray-400 text-center py-12 text-sm">No folders yet</p>
+        <p className="text-gray-400 text-center py-12 text-sm">
+          No folders yet
+        </p>
       ) : (
         <ul className="divide-y divide-gray-100">
           {folders.map((folder: (typeof folders)[number]) => (
@@ -33,5 +37,5 @@ export default async function Home() {
         <CreateFolderForm />
       </div>
     </main>
-  )
+  );
 }

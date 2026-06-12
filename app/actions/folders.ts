@@ -9,3 +9,11 @@ export async function createFolder(formData: FormData) {
   await prisma.folder.create({ data: { name } })
   revalidatePath('/')
 }
+
+export async function addPhotoKey(folderId: string, uuid: string) {
+  await prisma.folder.update({
+    where: { id: folderId },
+    data: { photoKeys: { push: uuid } },
+  })
+  revalidatePath(`/folders/${folderId}`)
+}

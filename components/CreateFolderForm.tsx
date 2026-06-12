@@ -1,14 +1,14 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { createFolder } from '@/app/actions/folders'
+import { useState } from "react";
+import { createFolder } from "@/app/actions/folders";
 
 export default function CreateFolderForm() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   async function handleSubmit(formData: FormData) {
-    await createFolder(formData)
-    setOpen(false)
+    await createFolder(formData);
+    setOpen(false);
   }
 
   if (!open) {
@@ -19,7 +19,7 @@ export default function CreateFolderForm() {
       >
         + New Folder
       </button>
-    )
+    );
   }
 
   return (
@@ -47,5 +47,5 @@ export default function CreateFolderForm() {
         </button>
       </div>
     </form>
-  )
+  );
 }

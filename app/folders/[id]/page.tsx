@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { prisma } from '@/lib/prisma'
+import AddPhotoButton from '@/components/AddPhotoButton'
 
 export default async function FolderPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,13 +25,7 @@ export default async function FolderPage({ params }: { params: Promise<{ id: str
       )}
 
       <div className="fixed bottom-6 right-6">
-        <button
-          className="w-14 h-14 rounded-full bg-blue-600 text-white text-2xl shadow-lg flex items-center justify-center disabled:opacity-50"
-          disabled
-          aria-label="Add photo"
-        >
-          +
-        </button>
+        <AddPhotoButton folderId={folder.id} />
       </div>
     </main>
   )
