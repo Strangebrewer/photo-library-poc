@@ -7,9 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  folders      Folder[]
+}
+
 model Folder {
   id        String   @id @default(cuid())
   name      String
   photoKeys String[]
   createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }

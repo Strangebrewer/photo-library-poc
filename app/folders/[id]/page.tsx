@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { s3, S3_BUCKET } from "@/lib/s3";
 import AddPhotoButton from "@/components/AddPhotoButton";
 import DeletePhotoButton from "@/components/DeletePhotoButton";
+import { auth } from "@/auth";
 
 export default async function FolderPage({
   params,
@@ -13,7 +14,10 @@ export default async function FolderPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const folder = await prisma.folder.findUnique({ where: { id } });
+  const session = await auth();
+  const folder = await prisma.folder.findUnique({
+    where: { id, userId: session!.user.id },
+  });
 
   if (!folder) notFound();
 

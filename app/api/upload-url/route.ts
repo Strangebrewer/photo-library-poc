@@ -3,8 +3,11 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { s3, S3_BUCKET } from "@/lib/s3";
+import { auth } from "@/auth";
 
 export async function POST() {
+  const session = await auth();
+  if (!session?.user?.id) return new Response(null, { status: 401 });
   const uuid = randomUUID();
 
   const [fullUrl, thumbUrl] = await Promise.all([

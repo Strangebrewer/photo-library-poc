@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import CreateFolderForm from "@/components/CreateFolderForm";
+import { auth } from "@/auth";
 
 export default async function Home() {
+  const session = await auth();
   const folders = await prisma.folder.findMany({
+    where: { userId: session!.user.id },
     orderBy: { createdAt: "desc" },
   });
 
