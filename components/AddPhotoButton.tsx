@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { resizeBoth } from "@/lib/resize-image";
-import { addPhotoKey } from "@/app/actions/folders";
+import { addPhoto } from "@/app/actions/folders";
 
 type UploadState = "idle" | "uploading" | "done";
 
@@ -34,7 +34,7 @@ export default function AddPhotoButton({ folderId }: { folderId: string }) {
       }),
     ]);
 
-    await addPhotoKey(folderId, uuid);
+    await addPhoto(folderId, uuid);
     setState("done");
     await new Promise((resolve) => setTimeout(resolve, 2000));
 

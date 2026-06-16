@@ -16,21 +16,17 @@ export default function LoginForm() {
         type="text"
         placeholder="Username"
         autoComplete="username"
-        className="w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500"
+        className="input-primary"
       />
       <input
         name="password"
         type="password"
         placeholder="Password"
         autoComplete="current-password"
-        className="w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500"
+        className="input-primary"
       />
       {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full py-3 rounded-xl bg-blue-600 text-white text-sm font-medium disabled:opacity-60"
-      >
+      <button type="submit" disabled={pending} className="auth-btn">
         {pending ? "Signing in…" : "Sign In"}
       </button>
       <p className="text-center text-sm text-gray-500">

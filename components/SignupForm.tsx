@@ -18,7 +18,7 @@ export default function SignupForm() {
           placeholder="Username"
           autoComplete="username"
           pattern="[a-zA-Z0-9_\-]+"
-          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500"
+          className="input-primary"
         />
         {state.errors.username && (
           <p className="text-red-600 text-sm mt-1">{state.errors.username}</p>
@@ -30,7 +30,7 @@ export default function SignupForm() {
           type="password"
           placeholder="Password"
           autoComplete="new-password"
-          className="w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500"
+          className="input-primary"
         />
         {state.errors.password && (
           <p className="text-red-600 text-sm mt-1">{state.errors.password}</p>
@@ -39,11 +39,7 @@ export default function SignupForm() {
       {state.errors.general && (
         <p className="text-red-600 text-sm">{state.errors.general}</p>
       )}
-      <button
-        type="submit"
-        disabled={pending}
-        className="w-full py-3 rounded-xl bg-blue-600 text-white text-sm font-medium disabled:opacity-60"
-      >
+      <button type="submit" disabled={pending} className="auth-btn">
         {pending ? "Creating account…" : "Create Account"}
       </button>
       <p className="text-center text-sm text-gray-500">

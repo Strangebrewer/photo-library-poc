@@ -3,18 +3,12 @@
 import { useState } from "react";
 import { deletePhoto } from "@/app/actions/folders";
 
-export default function DeletePhotoButton({
-  folderId,
-  photoKey,
-}: {
-  folderId: string;
-  photoKey: string;
-}) {
+export default function DeletePhotoButton({ photoId }: { photoId: string }) {
   const [deleting, setDeleting] = useState(false);
 
   async function handleDelete() {
     setDeleting(true);
-    await deletePhoto(folderId, photoKey);
+    await deletePhoto(photoId);
     setDeleting(false);
   }
 

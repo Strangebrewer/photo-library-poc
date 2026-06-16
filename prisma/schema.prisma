@@ -13,13 +13,50 @@ model User {
   passwordHash String
   createdAt    DateTime @default(now())
   folders      Folder[]
+  photos       Photo[]
+  tags         Tag[]
 }
 
 model Folder {
   id        String   @id @default(cuid())
   name      String
-  photoKeys String[]
   createdAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id])
+  parentId  String?
+  parent    Folder?  @relation("FolderChildren", fields: [parentId], references: [id])
+  children  Folder[] @relation("FolderChildren")
+  photos    Photo[]
+}
+
+model Photo {
+  id          String     @id @default(cuid())
+  key         String
+  name        String
+  description String?
+  takenAt     DateTime   @default(now())
+  folderId    String
+  folder      Folder     @relation(fields: [folderId], references: [id])
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  tags        PhotoTag[]
+}
+
+model Tag {
+  id     String     @id @default(cuid())
+  name   String
+  userId String
+  user   User       @relation(fields: [userId], references: [id])
+  photos PhotoTag[]
+
+  @@unique([userId, name])
+}
+
+model PhotoTag {
+  photoId String
+  tagId   String
+  photo   Photo  @relation(fields: [photoId], references: [id])
+  tag     Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([photoId, tagId])
 }

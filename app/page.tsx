@@ -6,8 +6,8 @@ import { auth } from "@/auth";
 export default async function Home() {
   const session = await auth();
   const folders = await prisma.folder.findMany({
-    where: { userId: session!.user.id },
-    orderBy: { createdAt: "desc" },
+    where: { userId: session!.user.id, parentId: null },
+    orderBy: { name: "asc" },
   });
 
   return (
@@ -16,13 +16,17 @@ export default async function Home() {
         <h1 className="text-xl font-semibold">Photo Library</h1>
       </header>
 
+      <div className="mb-6">
+        <CreateFolderForm />
+      </div>
+
       {folders.length === 0 ? (
         <p className="text-gray-400 text-center py-12 text-sm">
           No folders yet
         </p>
       ) : (
         <ul className="divide-y divide-gray-100">
-          {folders.map((folder: (typeof folders)[number]) => (
+          {folders.map((folder) => (
             <li key={folder.id}>
               <Link
                 href={`/folders/${folder.id}`}
@@ -35,10 +39,6 @@ export default async function Home() {
           ))}
         </ul>
       )}
-
-      <div className="mt-8">
-        <CreateFolderForm />
-      </div>
     </main>
   );
 }

@@ -10,41 +10,44 @@ export async function createFolder(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   const name = (formData.get("name") as string)?.trim();
+  const parentId = (formData.get("parentId") as string) || null;
   if (!name) return;
-  await prisma.folder.create({ data: { name, userId: session.user.id } });
-  revalidatePath("/");
+  await prisma.folder.create({
+    data: { name, userId: session.user.id, parentId },
+  });
+  if (parentId) {
+    revalidatePath(`/folders/${parentId}`);
+  } else {
+    revalidatePath("/");
+  }
 }
 
-export async function addPhotoKey(folderId: string, uuid: string) {
+export async function addPhoto(folderId: string, uuid: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  await prisma.folder.update({
-    where: { id: folderId, userId: session.user.id },
-    data: { photoKeys: { push: uuid } },
+  await prisma.photo.create({
+    data: { key: uuid, name: uuid, folderId, userId: session.user.id },
   });
   revalidatePath(`/folders/${folderId}`);
 }
 
-export async function deletePhoto(folderId: string, photoKey: string) {
+export async function deletePhoto(photoId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
-  const folder = await prisma.folder.findUniqueOrThrow({
-    where: { id: folderId, userId: session.user.id },
+  const photo = await prisma.photo.findUniqueOrThrow({
+    where: { id: photoId, userId: session.user.id },
   });
-  await prisma.folder.update({
-    where: { id: folderId },
-    data: { photoKeys: folder.photoKeys.filter((k) => k !== photoKey) },
-  });
+  await prisma.photo.delete({ where: { id: photoId } });
   await Promise.all([
     s3.send(
-      new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: `${photoKey}.jpg` }),
+      new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: `${photo.key}.jpg` }),
     ),
     s3.send(
       new DeleteObjectCommand({
         Bucket: S3_BUCKET,
-        Key: `${photoKey}_thumb.jpg`,
+        Key: `${photo.key}_thumb.jpg`,
       }),
     ),
   ]);
-  revalidatePath(`/folders/${folderId}`);
+  revalidatePath(`/folders/${photo.folderId}`);
 }

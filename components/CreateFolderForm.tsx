@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { createFolder } from "@/app/actions/folders";
 
-export default function CreateFolderForm() {
+export default function CreateFolderForm({ parentId }: { parentId?: string }) {
   const [open, setOpen] = useState(false);
 
   async function handleSubmit(formData: FormData) {
@@ -24,12 +24,13 @@ export default function CreateFolderForm() {
 
   return (
     <form action={handleSubmit} className="flex flex-col gap-3">
+      {parentId && <input type="hidden" name="parentId" value={parentId} />}
       <input
         name="name"
         type="text"
         placeholder="Folder name"
         autoFocus
-        className="w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500"
+        className="input-primary"
       />
 
       <div className="flex gap-2">

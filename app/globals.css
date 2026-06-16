@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+@layer components {
+  .input-primary {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300 text-base outline-none focus:border-blue-500;
+  }
+  .auth-btn {
+    @apply w-full py-3 rounded-xl bg-blue-600 text-white text-sm font-medium disabled:opacity-60;
+  }
+}
