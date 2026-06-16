@@ -6,6 +6,16 @@ import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { s3, S3_BUCKET } from "@/lib/s3";
 import { auth } from "@/auth";
 
+export async function getFolders() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  return prisma.folder.findMany({
+    where: { userId: session.user.id },
+    select: { id: true, name: true, parentId: true },
+    orderBy: { name: "asc" },
+  });
+}
+
 export async function createFolder(formData: FormData) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
@@ -20,15 +30,6 @@ export async function createFolder(formData: FormData) {
   } else {
     revalidatePath("/");
   }
-}
-
-export async function addPhoto(folderId: string, uuid: string) {
-  const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
-  await prisma.photo.create({
-    data: { key: uuid, name: uuid, folderId, userId: session.user.id },
-  });
-  revalidatePath(`/folders/${folderId}`);
 }
 
 export async function deletePhoto(photoId: string) {
