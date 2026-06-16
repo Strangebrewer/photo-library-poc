@@ -5,9 +5,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { prisma } from "@/lib/prisma";
 import { s3, S3_BUCKET } from "@/lib/s3";
 import AddPhotoButton from "@/components/AddPhotoButton";
-import DeletePhotoButton from "@/components/DeletePhotoButton";
 import CreateFolderForm from "@/components/CreateFolderForm";
 import Breadcrumb from "@/components/Breadcrumb";
+import PhotoGrid from "@/components/PhotoGrid";
 import { auth } from "@/auth";
 
 export default async function FolderPage({
@@ -45,15 +45,29 @@ export default async function FolderPage({
     }),
   ]);
 
-  const thumbUrls = await Promise.all(
-    photos.map((photo) =>
-      getSignedUrl(
-        s3,
-        new GetObjectCommand({ Bucket: S3_BUCKET, Key: `${photo.key}_thumb.jpg` }),
-        { expiresIn: 3600 },
+  const [thumbUrls, fullUrls] = await Promise.all([
+    Promise.all(
+      photos.map((photo) =>
+        getSignedUrl(
+          s3,
+          new GetObjectCommand({
+            Bucket: S3_BUCKET,
+            Key: `${photo.key}_thumb.jpg`,
+          }),
+          { expiresIn: 3600 },
+        ),
       ),
     ),
-  );
+    Promise.all(
+      photos.map((photo) =>
+        getSignedUrl(
+          s3,
+          new GetObjectCommand({ Bucket: S3_BUCKET, Key: `${photo.key}.jpg` }),
+          { expiresIn: 3600 },
+        ),
+      ),
+    ),
+  ]);
 
   return (
     <main className="max-w-lg mx-auto px-4 py-8">
@@ -65,7 +79,7 @@ export default async function FolderPage({
         <CreateFolderForm parentId={id} />
       </div>
 
-      {subfolders.length > 0 && (
+      {subfolders.length ? (
         <ul className="divide-y divide-gray-100 mb-6">
           {subfolders.map((sub) => (
             <li key={sub.id}>
@@ -79,25 +93,18 @@ export default async function FolderPage({
             </li>
           ))}
         </ul>
-      )}
+      ) : null}
 
-      {photos.length === 0 && subfolders.length === 0 ? (
-        <p className="text-gray-400 text-center py-12 text-sm">
-          No photos yet
-        </p>
-      ) : photos.length > 0 ? (
-        <div className="grid grid-cols-3 gap-1">
-          {photos.map((photo, i) => (
-            <div key={photo.id} className="relative">
-              <img
-                src={thumbUrls[i]}
-                alt=""
-                className="w-full aspect-square object-cover"
-              />
-              <DeletePhotoButton photoId={photo.id} />
-            </div>
-          ))}
-        </div>
+      {!photos.length && !subfolders.length ? (
+        <p className="text-gray-400 text-center py-12 text-sm">No photos yet</p>
+      ) : photos.length ? (
+        <PhotoGrid
+          photos={photos.map((photo, i) => ({
+            id: photo.id,
+            thumbUrl: thumbUrls[i],
+            fullUrl: fullUrls[i],
+          }))}
+        />
       ) : null}
 
       <div className="fixed bottom-6 right-6">

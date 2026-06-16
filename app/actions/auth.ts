@@ -37,13 +37,12 @@ export async function signupAction(
   const errors: Record<string, string> = {};
 
   if (!username || !USERNAME_REGEX.test(username)) {
-    errors.username =
-      "Username may only contain letters, numbers, _ or -.";
+    errors.username = "Username may only contain letters, numbers, _ or -.";
   }
   if (!password) {
     errors.password = "Password is required.";
   }
-  if (Object.keys(errors).length > 0) {
+  if (Object.keys(errors).length) {
     return { errors };
   }
 

@@ -20,7 +20,7 @@ export default async function Home() {
         <CreateFolderForm />
       </div>
 
-      {folders.length === 0 ? (
+      {!folders.length ? (
         <p className="text-gray-400 text-center py-12 text-sm">
           No folders yet
         </p>
