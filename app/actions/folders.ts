@@ -32,13 +32,38 @@ export async function createFolder(formData: FormData) {
   }
 }
 
+export async function deleteFolder(folderId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const folder = await prisma.folder.findUniqueOrThrow({
+    where: { id: folderId, userId: session.user.id },
+    include: { _count: { select: { children: true, photos: true } } },
+  });
+
+  if (folder._count.children > 0 || folder._count.photos > 0) {
+    throw new Error("Folder is not empty");
+  }
+
+  await prisma.folder.delete({ where: { id: folderId } });
+
+  if (folder.parentId) {
+    revalidatePath(`/folders/${folder.parentId}`);
+  } else {
+    revalidatePath("/");
+  }
+}
+
 export async function deletePhoto(photoId: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
   const photo = await prisma.photo.findUniqueOrThrow({
     where: { id: photoId, userId: session.user.id },
   });
-  await prisma.photo.delete({ where: { id: photoId } });
+  await prisma.$transaction([
+    prisma.photoTag.deleteMany({ where: { photoId } }),
+    prisma.photo.delete({ where: { id: photoId } }),
+  ]);
   await Promise.all([
     s3.send(
       new DeleteObjectCommand({ Bucket: S3_BUCKET, Key: `${photo.key}.jpg` }),

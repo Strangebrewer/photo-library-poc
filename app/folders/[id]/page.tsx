@@ -7,14 +7,15 @@ import { s3, S3_BUCKET } from "@/lib/s3";
 import AddPhotoButton from "@/components/AddPhotoButton";
 import CreateFolderForm from "@/components/CreateFolderForm";
 import Breadcrumb from "@/components/Breadcrumb";
+import DeleteFolderButton from "@/components/DeleteFolderButton";
 import PhotoGrid from "@/components/PhotoGrid";
 import { auth } from "@/auth";
 
-export default async function FolderPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ id: string }>;
-}) {
+};
+
+export default async function FolderPage({ params }: Props) {
   const { id } = await params;
   const session = await auth();
   const folder = await prisma.folder.findUnique({
@@ -39,9 +40,11 @@ export default async function FolderPage({
     prisma.folder.findMany({
       where: { parentId: id, userId: session!.user.id },
       orderBy: { name: "asc" },
+      include: { _count: { select: { children: true, photos: true } } },
     }),
     prisma.photo.findMany({
       where: { folderId: id, userId: session!.user.id },
+      include: { tags: { include: { tag: { select: { name: true } } } } },
     }),
   ]);
 
@@ -82,10 +85,15 @@ export default async function FolderPage({
       {subfolders.length ? (
         <ul className="divide-y divide-gray-100 mb-6">
           {subfolders.map((sub) => (
-            <li key={sub.id}>
+            <li key={sub.id} className="flex items-center">
+              <DeleteFolderButton
+                folderId={sub.id}
+                folderName={sub.name}
+                canDelete={sub._count.children === 0 && sub._count.photos === 0}
+              />
               <Link
                 href={`/folders/${sub.id}`}
-                className="flex items-center justify-between py-4 text-base font-medium"
+                className="flex-1 flex items-center justify-between py-2.5 text-base font-medium"
               >
                 <span>{sub.name}</span>
                 <span className="text-gray-400">&gt;</span>
@@ -103,6 +111,14 @@ export default async function FolderPage({
             id: photo.id,
             thumbUrl: thumbUrls[i],
             fullUrl: fullUrls[i],
+            name: photo.name,
+            takenAt: photo.takenAt.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            }),
+            description: photo.description ?? "",
+            tags: photo.tags.map((pt) => pt.tag.name),
           }))}
         />
       ) : null}

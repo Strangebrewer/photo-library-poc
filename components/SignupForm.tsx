@@ -24,6 +24,7 @@ export default function SignupForm() {
           <p className="text-red-600 text-sm mt-1">{state.errors.username}</p>
         )}
       </div>
+
       <div>
         <input
           name="password"
@@ -36,12 +37,15 @@ export default function SignupForm() {
           <p className="text-red-600 text-sm mt-1">{state.errors.password}</p>
         )}
       </div>
+
       {state.errors.general && (
         <p className="text-red-600 text-sm">{state.errors.general}</p>
       )}
+
       <button type="submit" disabled={pending} className="auth-btn">
         {pending ? "Creating account…" : "Create Account"}
       </button>
+
       <p className="text-center text-sm text-gray-500">
         Already have an account?{" "}
         <Link href="/login" className="text-blue-600 underline">

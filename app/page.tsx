@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import CreateFolderForm from "@/components/CreateFolderForm";
+import AddPhotoButton from "@/components/AddPhotoButton";
+import DeleteFolderButton from "@/components/DeleteFolderButton";
 import { auth } from "@/auth";
 
 export default async function Home() {
@@ -8,6 +10,7 @@ export default async function Home() {
   const folders = await prisma.folder.findMany({
     where: { userId: session!.user.id, parentId: null },
     orderBy: { name: "asc" },
+    include: { _count: { select: { children: true, photos: true } } },
   });
 
   return (
@@ -27,10 +30,15 @@ export default async function Home() {
       ) : (
         <ul className="divide-y divide-gray-100">
           {folders.map((folder) => (
-            <li key={folder.id}>
+            <li key={folder.id} className="flex items-center">
+              <DeleteFolderButton
+                folderId={folder.id}
+                folderName={folder.name}
+                canDelete={folder._count.children === 0 && folder._count.photos === 0}
+              />
               <Link
                 href={`/folders/${folder.id}`}
-                className="flex items-center justify-between py-4 text-base font-medium"
+                className="flex-1 flex items-center justify-between py-2.5 text-base font-medium"
               >
                 <span>{folder.name}</span>
                 <span className="text-gray-400">&gt;</span>
@@ -39,6 +47,9 @@ export default async function Home() {
           ))}
         </ul>
       )}
+      <div className="fixed bottom-6 right-6">
+        <AddPhotoButton disabled={folders.length === 0} />
+      </div>
     </main>
   );
 }

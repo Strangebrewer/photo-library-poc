@@ -18,6 +18,7 @@ export default function Breadcrumb({
             Home
           </Link>
         </li>
+
         {ancestors.map((crumb) => (
           <Fragment key={crumb.id}>
             <li aria-hidden className="text-gray-400">
@@ -30,9 +31,11 @@ export default function Breadcrumb({
             </li>
           </Fragment>
         ))}
+
         <li aria-hidden className="text-gray-400">
           /
         </li>
+
         <li>
           <strong>{current}</strong>
         </li>

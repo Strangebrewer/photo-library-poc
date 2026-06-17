@@ -52,7 +52,12 @@ export async function signupAction(
   }
 
   const passwordHash = await bcryptjs.hash(password, 12);
-  await prisma.user.create({ data: { username, passwordHash } });
+  const newUser = await prisma.user.create({
+    data: { username, passwordHash },
+  });
+  await prisma.folder.create({
+    data: { name: "Favorites", userId: newUser.id },
+  });
 
   try {
     await signIn("credentials", { username, password, redirect: false });

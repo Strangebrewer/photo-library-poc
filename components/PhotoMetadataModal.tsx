@@ -19,7 +19,7 @@ export type PhotoMetadata = {
 };
 
 type Props = {
-  defaultFolderId: string;
+  defaultFolderId?: string;
   onSubmit: (metadata: PhotoMetadata) => void;
   onClose: () => void;
 };
@@ -35,13 +35,19 @@ function buildPath(folders: FolderOption[], id: string): string {
   return parts.join(" / ");
 }
 
-export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose }: Props) {
+export default function PhotoMetadataModal({
+  defaultFolderId,
+  onSubmit,
+  onClose,
+}: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [tagDropdownOpen, setTagDropdownOpen] = useState(false);
-  const [selectedFolderId, setSelectedFolderId] = useState(defaultFolderId);
+  const [selectedFolderId, setSelectedFolderId] = useState(
+    defaultFolderId ?? "",
+  );
   const [folderInput, setFolderInput] = useState("");
   const [folderDropdownOpen, setFolderDropdownOpen] = useState(false);
   const [folders, setFolders] = useState<FolderOption[]>([]);
@@ -75,12 +81,18 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
-    onSubmit({ name: name.trim(), description: description.trim(), tags, folderId: selectedFolderId });
+    if (!name.trim() || !selectedFolderId) return;
+    onSubmit({
+      name: name.trim(),
+      description: description.trim(),
+      tags,
+      folderId: selectedFolderId,
+    });
   }
 
   const filteredTags = userTags.filter(
-    (t) => t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t),
+    (t) =>
+      t.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(t),
   );
 
   const filteredFolders = folders.filter((f) =>
@@ -94,7 +106,7 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
       : "Loading...";
 
   return (
-    <Modal isOpen={true} close={onClose} closeOnOutsideClick={false}>
+    <Modal close={onClose} closeOnOutsideClick={false}>
       <div className="bg-white rounded-xl w-[90vw] max-w-md max-h-[80vh] overflow-y-auto">
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
           <h2 className="text-lg font-semibold text-gray-900">Add Photo</h2>
@@ -107,18 +119,20 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+              className="input-modal"
               autoFocus
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Description</label>
+            <label className="text-sm font-medium text-gray-700">
+              Description
+            </label>
             <input
               type="text"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-sm outline-none focus:border-blue-500"
+              className="input-modal"
             />
           </div>
 
@@ -136,14 +150,18 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
                   {tag}
                   <button
                     type="button"
-                    onClick={(e) => { e.stopPropagation(); removeTag(tag); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeTag(tag);
+                    }}
                     className="text-blue-600 hover:text-blue-900 leading-none"
                     aria-label={`Remove tag ${tag}`}
                   >
-                    ×
+                    x
                   </button>
                 </span>
               ))}
+
               <input
                 ref={tagInputRef}
                 value={tagInput}
@@ -155,6 +173,7 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
                 className="flex-1 min-w-[80px] outline-none text-sm bg-transparent"
               />
             </div>
+
             {tagDropdownOpen && filteredTags.length > 0 && (
               <ul className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-40 overflow-y-auto">
                 {filteredTags.map((tag) => (
@@ -213,7 +232,7 @@ export default function PhotoMetadataModal({ defaultFolderId, onSubmit, onClose 
             </button>
             <button
               type="submit"
-              disabled={!name.trim()}
+              disabled={!name.trim() || !selectedFolderId}
               className="flex-1 bg-blue-600 text-white rounded-lg py-2 text-sm font-medium disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               Save

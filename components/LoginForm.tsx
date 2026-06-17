@@ -18,6 +18,7 @@ export default function LoginForm() {
         autoComplete="username"
         className="input-primary"
       />
+
       <input
         name="password"
         type="password"
@@ -25,10 +26,13 @@ export default function LoginForm() {
         autoComplete="current-password"
         className="input-primary"
       />
+
       {state.error && <p className="text-red-600 text-sm">{state.error}</p>}
+
       <button type="submit" disabled={pending} className="auth-btn">
         {pending ? "Signing in…" : "Sign In"}
       </button>
+
       <p className="text-center text-sm text-gray-500">
         No account?{" "}
         <Link href="/signup" className="text-blue-600 underline">

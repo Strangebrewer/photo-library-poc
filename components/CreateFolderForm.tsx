@@ -25,6 +25,7 @@ export default function CreateFolderForm({ parentId }: { parentId?: string }) {
   return (
     <form action={handleSubmit} className="flex flex-col gap-3">
       {parentId && <input type="hidden" name="parentId" value={parentId} />}
+
       <input
         name="name"
         type="text"
@@ -40,6 +41,7 @@ export default function CreateFolderForm({ parentId }: { parentId?: string }) {
         >
           Create
         </button>
+
         <button
           type="button"
           onClick={() => setOpen(false)}

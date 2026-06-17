@@ -4,18 +4,26 @@ import { useState } from "react";
 import DeletePhotoButton from "@/components/DeletePhotoButton";
 import PhotoViewerModal from "@/components/PhotoViewerModal";
 
-type Photo = { id: string; thumbUrl: string; fullUrl: string };
+export type Photo = {
+  id: string;
+  thumbUrl: string;
+  fullUrl: string;
+  name: string;
+  takenAt: string;
+  description: string;
+  tags: string[];
+};
 
 export default function PhotoGrid({ photos }: { photos: Photo[] }) {
-  const [selectedUrl, setSelectedUrl] = useState<string | null>(null);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   return (
     <>
       <div className="grid grid-cols-3 gap-1">
         {photos.map((photo) => (
-          <div key={photo.id} className="relative">
+          <div key={photo.id} className="relative flex flex-col">
             <button
-              onClick={() => setSelectedUrl(photo.fullUrl)}
+              onClick={() => setSelectedPhoto(photo)}
               className="w-full cursor-pointer"
               aria-label="View photo"
             >
@@ -26,13 +34,17 @@ export default function PhotoGrid({ photos }: { photos: Photo[] }) {
               />
             </button>
             <DeletePhotoButton photoId={photo.id} />
+            <div className="px-0.5 pt-1 pb-2">
+              <p className="text-xs font-medium text-gray-900 line-clamp-2 leading-tight">{photo.name}</p>
+              <p className="text-[11px] text-gray-400 mt-0.5">{photo.takenAt}</p>
+            </div>
           </div>
         ))}
       </div>
 
       <PhotoViewerModal
-        url={selectedUrl}
-        onClose={() => setSelectedUrl(null)}
+        photo={selectedPhoto}
+        onClose={() => setSelectedPhoto(null)}
       />
     </>
   );

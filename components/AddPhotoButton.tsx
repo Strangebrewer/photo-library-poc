@@ -8,7 +8,7 @@ import PhotoMetadataModal, { type PhotoMetadata } from "@/components/PhotoMetada
 type FABState = "idle" | "resizing" | "pending" | "uploading" | "done";
 type PendingBlobs = { full: Blob; thumb: Blob };
 
-export default function AddPhotoButton({ folderId }: { folderId: string }) {
+export default function AddPhotoButton({ folderId, disabled: disabledProp = false }: { folderId?: string; disabled?: boolean }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [fabState, setFabState] = useState<FABState>("idle");
   const [pendingBlobs, setPendingBlobs] = useState<PendingBlobs | null>(null);
@@ -69,7 +69,7 @@ export default function AddPhotoButton({ folderId }: { folderId: string }) {
       />
       <button
         onClick={() => inputRef.current?.click()}
-        disabled={fabState !== "idle"}
+        disabled={disabledProp || fabState !== "idle"}
         className={`h-14 px-6 rounded-full text-white text-sm font-semibold shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed ${bgColor}`}
       >
         {(fabState === "resizing" || fabState === "uploading") && (
